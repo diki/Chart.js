@@ -1569,7 +1569,9 @@
 
 				}
 				if (this.xLabelRotation > 0){
-					this.endPoint -= Math.sin(toRadians(this.xLabelRotation))*originalLabelWidth + 3;
+					if(this.xLabelsFreq <= 1) {
+						this.endPoint -= Math.sin(toRadians(this.xLabelRotation))*originalLabelWidth + 3;
+					} 
 				}
 			}
 			else{
@@ -1661,7 +1663,8 @@
 					ctx.closePath();
 
 				},this);
-
+			
+				var xFreq = this.xLabelsFreq;
 				each(this.xLabels,function(label,index){
 					var xPos = this.calculateX(index) + aliasPixel(this.lineWidth),
 						// Check to see if line/bar here and decide where to place the line
@@ -1709,11 +1712,18 @@
 
 					ctx.save();
 					ctx.translate(xPos,(isRotated) ? this.endPoint + 12 : this.endPoint + 8);
-					ctx.rotate(toRadians(this.xLabelRotation)*-1);
+					
 					ctx.font = this.font;
 					ctx.textAlign = (isRotated) ? "right" : "center";
 					ctx.textBaseline = (isRotated) ? "middle" : "top";
-					ctx.fillText(label, 0, 0);
+					if(xFreq) {
+						if(index%xFreq === 0) {
+							ctx.fillText(label, 0, 0);		
+						}
+					} else {
+						ctx.rotate(toRadians(this.xLabelRotation)*-1);
+						ctx.fillText(label, 0, 0);
+					}
 					ctx.restore();
 				},this);
 
@@ -2559,8 +2569,9 @@
 		datasetFill : true,
 
 		//String - A legend template
-		legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+		legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>",
 
+		xLabelsFreq: 1
 	};
 
 
@@ -2626,7 +2637,6 @@
 				},this);
 
 				this.buildScale(data.labels);
-
 
 				this.eachPoints(function(point, index){
 					helpers.extend(point, {
@@ -2711,7 +2721,8 @@
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding: (this.options.showScale) ? 0 : this.options.pointDotRadius + this.options.pointDotStrokeWidth,
 				showLabels : this.options.scaleShowLabels,
-				display : this.options.showScale
+				display : this.options.showScale,
+				xLabelsFreq: this.options.xLabelsFreq
 			};
 
 			if (this.options.scaleOverride){
