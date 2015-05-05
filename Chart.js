@@ -1665,6 +1665,7 @@
 				},this);
 			
 				var xFreq = this.xLabelsFreq;
+
 				each(this.xLabels,function(label,index){
 					var xPos = this.calculateX(index) + aliasPixel(this.lineWidth),
 						// Check to see if line/bar here and decide where to place the line
@@ -1705,7 +1706,7 @@
 
 					// Small lines at the bottom of the base grid line
 					ctx.beginPath();
-					ctx.moveTo(linePos,this.endPoint);
+					ctx.moveTo(linePos+20,this.endPoint);
 					ctx.lineTo(linePos,this.endPoint + 5);
 					ctx.stroke();
 					ctx.closePath();
@@ -1713,12 +1714,15 @@
 					ctx.save();
 					ctx.translate(xPos,(isRotated) ? this.endPoint + 12 : this.endPoint + 8);
 					
+					if(xFreq > 1) {
+						isRotated = true;
+					}
 					ctx.font = this.font;
-					ctx.textAlign = (isRotated) ? "right" : "center";
+					ctx.textAlign = (isRotated) ? "right" : (xFreq > 1) ? "right" : "center";
 					ctx.textBaseline = (isRotated) ? "middle" : "top";
 					if(xFreq) {
 						if(index%xFreq === 0) {
-							ctx.fillText(label, 0, 0);		
+							ctx.fillText(label, xFreq>1 ? 45 + xFreq*0.4 : 0, 0);		
 						}
 					} else {
 						ctx.rotate(toRadians(this.xLabelRotation)*-1);
